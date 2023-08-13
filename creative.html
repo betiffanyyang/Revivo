@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+}
+    
+#canvas {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background-color: #1c1c1c;
+    z-index: 1;
+}
+
+.shape {
+    position: absolute;
+    background-color: #585858;
+}
+
+.handle {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    position: absolute;
+    display: none;
+}
+
+.selected {
+    border: 3px dashed #ffffff;
+}
+
+.handle {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    position: absolute;
+    display: none;
+}
+
+.handle.tl { top: -5px; left: -5px; } 
+.handle.tr { top: -5px; right: -5px; } 
+.handle.bl { bottom: -5px; left: -5px; } 
+.handle.br { bottom: -5px; right: -5px; }
+
+.rotate-handle {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: grab;
+    display: none;
+}
+
+.rotate-handle::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 16px;
+    background-color: #ffffff;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+}
+
+.hidden {
+    display: none;
+}
+
+#sidebar {
+    position: fixed;
+    left: 30px;
+    top: 100px;
+    width: 40px;
+    background-color: #3f3f3f;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    border-radius: 7px;
+}
+
+textarea.selected {
+    border: 2px dashed #ffffff;
+}
+
+textarea:focus {
+    outline: none;
+}
+
+#ruler {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 100%;
+    background: repeating-linear-gradient(to right, #333, #333 1px, #FFF 1px, #FFF 10px);
+}
+
+#buttonContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    gap: 15px;
+    margin-top: 20px; 
+}
+
+#buttonContainer button {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 100px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#buttonContainer button img {
+    width: 30px;
+    height: auto;
+}
+
+#calculateImpact {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 2;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+#calculateImpact a {
+    display: inline-block;
+    padding: 5px; 
+}
+
+#calculateImpact img {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+}
+
+
+
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revivo Canvas</title>
+</head>
+
+<body>
+    <div id="sidebar">
+        <div id="buttonContainer">
+            <button onclick="createShape('rect')"><img src="square.png" alt="Rectangle"></button>
+            <button onclick="createShape('circle')"><img src="circle.png" alt="Circle"></button>
+            <button onclick="createShape('line')"><img src="diagonal-line.png" alt="Line"></button>
+            <button onclick="createTextField()"><img src="text (1).png" alt="Text Field"></button>
+            <button onclick="deleteShape()"><img src="delete (4).png" alt="Delete"></button>
+                <label for="canvasScale">Canvas Scale:</label>
+                <select id="canvasScale">
+                    <option value="inches">Inches</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="feet">Feet</option>
+                </select>
+        </div>
+    </div>
+    <div id="canvas">
+        <div id="ruler"></div>
+        <button id="calculateImpact"><img src="CornerImage.png" alt="Rectangle"></button>
+    <p id="impactScore">Environmental Impact: N/A</p>
+    <p id="errorNotification" style="color: red;"></p>
+    </div>
+        <div id="shapeProperties" class="hidden">
+            <h3>Shape Properties</h3>
+            <div class="property">
+                <label for="colorPicker">Color:</label>
+                <input type="color" id="colorPicker">
+            </div>
+            <div class="property">
+                <label for="shapeWidth">Width:</label>
+                <input type="number" id="shapeWidth" min="1" step="1" placeholder="Width in px">
+            </div>
+            <div class="property">
+                <label for="shapeHeight">Height:</label>
+                <input type="number" id="shapeHeight" min="1" step="1" placeholder="Height in px">
+            </div>
+            <div class="property">
+                <label for="shapeDepth">Depth (in default unit):</label>
+                <input type="number" id="shapeDepth" min="1" step="1" placeholder="Depth">
+            </div>
+            <div class="property">
+                <label for="shapeMaterial">Material:</label>
+                <select id="shapeMaterial">
+                    <option value="" selected disabled>--Select One--</option>
+                    <option value="wood">Wood</option>
+                    <option value="metal">Metal</option>
+                    <option value="plastic">Plastic</option>
+                    <option value="paper">Paper</option>
+                </select>
+            </div>
+        </div>
+
+    <div id="textProperties" class="hidden">
+        <h4>Text Properties</h4>
+        <label for="textBold">Bold:</label>
+        <input type="checkbox" id="textBold">
+
+        <label for="textItalic">Italic:</label>
+        <input type="checkbox" id="textItalic">
+
+        <label for="textUnderline">Underline:</label>
+        <input type="checkbox" id="textUnderline">
+
+        <label for="textColor">Text Color:</label>
+        <input type="color" id="textColor">
+
+        <label for="fontSize">Font Size:</label>
+        <input type="number" id="fontSize" min="1" step="1" placeholder="Size in px">
+
+        <label for="fontType">Font Type:</label>
+        <select id="fontType">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+        </select>
+    </div>
+</body>
+
+<script>
+    const sidebar = document.getElementById('sidebar');
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    sidebar.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - sidebar.getBoundingClientRect().left;
+        offsetY = e.clientY - sidebar.getBoundingClientRect().top;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        sidebar.style.left = (e.clientX - offsetX) + 'px';
+        sidebar.style.top = (e.clientY - offsetY) + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.11/dist/interact.min.js"></script>
+<script>
+    let selectedShape = null;
+
+    function createTextField() {
+        const textField = document.createElement('textarea');
+        textField.setAttribute('placeholder', 'Insert your text here');
+        textField.style.position = 'absolute';
+        textField.style.top = '300px';
+        textField.style.left = '300px';
+        textField.style.width = '300px';
+        textField.style.height = '30px';
+        textField.style.resize = 'none'; 
+        textField.style.backgroundColor = 'transparent';
+
+        textField.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (selectedShape) {
+                selectedShape.classList.remove('selected');
+                Array.from(selectedShape.querySelectorAll('.handle, .rotate-handle')).forEach(handle => handle.style.display = 'none');
+            }
+            selectedShape = textField;
+            textField.classList.add('selected');
+            document.getElementById('textProperties').classList.remove('hidden');
+        });
+
+        document.getElementById('canvas').appendChild(textField);
+
+        // Make the text field draggable
+        interact(textField)
+            .draggable({
+                listeners: {
+                    move(event) {
+                        const target = event.target;
+                        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                        target.style.transform = `translate(${x}px, ${y}px)`;
+                        target.setAttribute('data-x', x);
+                        target.setAttribute('data-y', y);
+                    }
+                }
+            })
+            .resizable({
+                edges: { left: true, right: true, bottom: true, top: true },
+                listeners: {
+                    move(event) {
+                        const target = event.target;
+                        let x = (parseFloat(target.getAttribute('data-x')) || 0);
+                        let y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+                        target.style.width = event.rect.width + 'px';
+                        target.style.height = event.rect.height + 'px';
+
+                        x += event.deltaRect.left;
+                        y += event.deltaRect.top;
+
+                        target.style.transform = `translate(${x}px, ${y}px)`;
+                        target.setAttribute('data-x', x);
+                        target.setAttribute('data-y', y);
+                    }
+                }
+            });
+        
+    }
+
+    function createShape(type) {
+        const shape = document.createElement('div');
+        shape.classList.add('shape');
+
+        ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+            const handle = document.createElement('div');
+            handle.classList.add('handle', pos);
+            shape.appendChild(handle);
+        });
+
+        const rotateHandle = document.createElement('div');
+        rotateHandle.classList.add('rotate-handle');
+        shape.appendChild(rotateHandle);
+
+        setRotationDrag(rotateHandle, shape);
+
+        switch (type) {
+            case 'rect':
+                shape.style.width = '100px';
+                shape.style.height = '100px';
+                break;
+            case 'circle':
+                shape.style.width = '100px';
+                shape.style.height = '100px';
+                shape.style.borderRadius = '50%';
+                break;
+            case 'line':
+                shape.style.width = '100px';
+                shape.style.height = '2px';
+                break;
+        }
+
+        shape.style.top = '300px';
+        shape.style.left = '300px';
+
+        shape.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (selectedShape) {
+                selectedShape.classList.remove('selected');
+                Array.from(selectedShape.querySelectorAll('.handle, .rotate-handle')).forEach(handle => handle.style.display = 'none');
+            }
+            selectedShape = shape;
+            shape.classList.add('selected');
+            Array.from(shape.querySelectorAll('.handle, .rotate-handle')).forEach(handle => handle.style.display = 'block');
+
+            const shapeMaterial = selectedShape.getAttribute('data-material');
+            const shapeDepth = selectedShape.getAttribute('data-depth');
+            
+            document.getElementById('shapeMaterial').value = shapeMaterial || ''; 
+            document.getElementById('shapeDepth').value = shapeDepth || ''; 
+
+            document.getElementById('shapeProperties').classList.remove('hidden');
+            document.getElementById('shapeWidth').value = parseInt(window.getComputedStyle(shape).width, 10);
+            document.getElementById('shapeHeight').value = parseInt(window.getComputedStyle(shape).height, 10);
+        });
+
+        document.getElementById('canvas').appendChild(shape);
+
+        function setRotationDrag(handle, shape) {
+            let startAngle = 0;
+            let center = {};
+
+            interact(handle).draggable({
+                startImmediate: false,
+                onstart: function (event) {
+                    const rect = shape.getBoundingClientRect();
+                    center = {
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2
+                    };
+                    const start = {
+                        x: event.clientX,
+                        y: event.clientY
+                    };
+                    startAngle = Math.atan2(start.y - center.y, start.x - center.x);
+                },
+                onmove: function (event) {
+                    const current = {
+                        x: event.clientX,
+                        y: event.clientY
+                    };
+                    const currentAngle = Math.atan2(current.y - center.y, current.x - center.x);
+                    const angleDifference = currentAngle - startAngle;
+
+                    const angle = (parseFloat(shape.getAttribute('data-angle')) || 0) + angleDifference * (180 / Math.PI);
+                    const x = parseFloat(shape.getAttribute('data-x')) || 0;
+                    const y = parseFloat(shape.getAttribute('data-y')) || 0;
+
+                    shape.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+                    shape.setAttribute('data-angle', angle);
+
+                    startAngle = currentAngle;
+                }
+            });
+        }
+
+        // Add drag and resize functionality
+        interact(shape)
+            .draggable({
+                listeners: {
+                    move(event) {
+                        const target = event.target;
+                        const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                        const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                        const angle = parseFloat(target.getAttribute('data-angle')) || 0;
+
+                        target.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+                        target.setAttribute('data-x', x);
+                        target.setAttribute('data-y', y);
+                    }
+                }
+            })
+            .resizable({
+                edges: { left: true, right: true, bottom: true, top: true },
+                listeners: {
+                    move(event) {
+                        const target = event.target;
+                        let x = (parseFloat(target.getAttribute('data-x')) || 0);
+                        let y = (parseFloat(target.getAttribute('data-y')) || 0);
+                        const angle = parseFloat(target.getAttribute('data-angle')) || 0;
+
+                        target.style.width = event.rect.width + 'px';
+                        target.style.height = event.rect.height + 'px';
+
+                        x += event.deltaRect.left;
+                        y += event.deltaRect.top;
+
+                        target.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+                        target.setAttribute('data-x', x);
+                        target.setAttribute('data-y', y);
+                    }
+                }
+            });
+        }
+
+        function deleteShape() {
+            if (selectedShape) {
+                if (selectedShape.tagName === 'TEXTAREA') {
+                    selectedShape.remove();
+                } else {
+                    selectedShape.remove();
+                }
+                selectedShape = null;
+            }
+        }
+
+        document.body.addEventListener('click', (e) => {
+            console.log("Body clicked");
+            if (e.target.classList.contains('shape') || 
+                e.target.classList.contains('handle') || 
+                e.target.classList.contains('rotate-handle') || 
+                e.target.tagName === 'TEXTAREA' || 
+                e.target.closest('#shapeProperties') || 
+                e.target.closest('#textProperties') || 
+                e.target.id === 'shapeMaterial' || 
+                e.target.id === 'shapeDepth') {
+                return;
+            }
+            
+            if (selectedShape) {
+                selectedShape.classList.remove('selected');
+                Array.from(selectedShape.querySelectorAll('.handle, .rotate-handle')).forEach(handle => handle.style.display = 'none');
+                selectedShape = null;
+            }
+            
+            document.getElementById('shapeProperties').classList.add('hidden');
+            document.getElementById('textProperties').classList.add('hidden');
+        });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.target.tagName === 'INPUT' || (event.target.tagName === 'TEXTAREA' && document.activeElement === event.target)) return;
+        if (event.key === "Delete" || event.key === "Backspace") {
+            deleteShape();
+        }
+
+    });
+
+    // sidebar controls
+    const colorPicker = document.getElementById('colorPicker');
+    colorPicker.addEventListener('input', function(e) {
+        console.log("Event triggered"); // Check if the event is triggered
+        console.log("Selected color:", e.target.value);
+        if (selectedShape) {
+            console.log("Applying color to shape:", selectedShape);
+            selectedShape.style.backgroundColor = e.target.value;
+        } else {
+            console.log("No shape selected");
+        }
+    });
+
+    document.getElementById('shapeWidth').addEventListener('input', function(e) {
+        if (selectedShape) {
+            selectedShape.style.width = e.target.value + 'px';
+        }
+    });
+
+    document.getElementById('shapeHeight').addEventListener('input', function(e) {
+        if (selectedShape) {
+            selectedShape.style.height = e.target.value + 'px';
+        }
+    });
+
+    document.getElementById('textBold').addEventListener('change', function(e) {
+        if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
+            selectedShape.style.fontWeight = e.target.checked ? 'bold' : 'normal';
+        }
+    });
+
+    document.getElementById('textItalic').addEventListener('change', function(e) {
+        if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
+            selectedShape.style.fontStyle = e.target.checked ? 'italic' : 'normal';
+        }
+    });
+
+    document.getElementById('textUnderline').addEventListener('change', function(e) {
+        if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
+            selectedShape.style.textDecoration = e.target.checked ? 'underline' : 'none';
+        }
+    });
+
+    document.getElementById('textColor').addEventListener('input', function(e) {
+        if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
+            selectedShape.style.color = e.target.value;
+        }
+    });
+
+    document.getElementById('fontSize').addEventListener('input', function(e) {
+        if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
+            selectedShape.style.fontSize = e.target.value + 'px';
+        }
+    });
+
+    document.getElementById('fontType').addEventListener('change', function(e) {
+        if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
+            selectedShape.style.fontFamily = e.target.value;
+        }
+    });
+
+    document.getElementById('shapeMaterial').addEventListener('change', function(e) {
+        if (selectedShape) {
+            switch (e.target.value) {
+                case 'wood':
+                    selectedShape.style.backgroundImage = 'url(wood-texture.png)';
+                    selectedShape.setAttribute('data-material', 'wood');
+                    break;
+                case 'metal':
+                    selectedShape.setAttribute('data-material', 'metal');
+                    break;
+                case 'plastic':
+                    selectedShape.setAttribute('data-material', 'plastic');
+                    break;
+                case 'paper':
+                    selectedShape.style.backgroundImage = 'url(paper-texture.png)';
+                    selectedShape.setAttribute('data-material', 'paper');
+                    break;
+                default:
+                    selectedShape.style.backgroundImage = '';
+                    selectedShape.removeAttribute('data-material');
+                    break;
+            }
+        }
+    });
+
+    document.getElementById('shapeDepth').addEventListener('input', function(e) {
+        if (selectedShape) {
+            selectedShape.setAttribute('data-depth', e.target.value);
+        }
+    });
+
+    document.getElementById('canvasScale').addEventListener('change', function(e) {
+        const ruler = document.getElementById('ruler');
+        switch (e.target.value) {
+            case 'inches':
+                ruler.style.backgroundSize = '10px 100%';
+                break;
+            case 'cm':
+                ruler.style.backgroundSize = '37.7953px 100%';  // 1 inch = 2.54 cm, so 10px * 2.54 = 25.4px represents 1cm
+                break;
+            case 'feet':
+                ruler.style.backgroundSize = '120px 100%';  // Assuming 10px represents 1 inch, 120px will represent 1 foot
+                break;
+        }
+    });
+
+    function calculateShapeImpact(shape) {
+        const width = parseFloat(window.getComputedStyle(shape).width);
+        const height = parseFloat(window.getComputedStyle(shape).height);
+        const depth = shape.getAttribute('data-depth');
+        const material = shape.getAttribute('data-material');
+
+        if (!depth || !material) {
+            return null;  // Indicates missing data
+        }
+
+        let impactScore = 0;
+        const volume = width * height * parseFloat(depth);
+
+        switch (material) {
+            case 'wood':
+                impactScore = volume * 0.5;  
+                break;
+            case 'metal':
+                impactScore = volume * 1.5;  
+                break;
+            case 'plastic':
+                impactScore = volume * 2;    
+                break;
+            case 'paper':
+                impactScore = volume * 0.3;
+                break;
+        }
+
+        return impactScore;
+    }
+
+    document.getElementById('calculateImpact').addEventListener('click', function() {
+        const shapes = document.querySelectorAll('.shape');
+        let totalImpact = 0;
+        let missingData = false;
+
+        shapes.forEach(shape => {
+            const impact = calculateShapeImpact(shape);
+            if (impact === null) {
+                missingData = true;
+            } else {
+                totalImpact += impact;
+            }
+        });
+
+        if (missingData) {
+            document.getElementById('errorNotification').innerText = "Please fill out all fields (material and depth) for each shape before calculating the impact score.";
+            document.getElementById('impactScore').innerText = "Environmental Impact: N/A";
+        } else {
+            document.getElementById('errorNotification').innerText = "";
+            document.getElementById('impactScore').innerText = `Environmental Impact: ${totalImpact}`;
+        }
+    });
+</script>
+</html>

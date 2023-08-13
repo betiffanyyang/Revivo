@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .logo {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+    width: 200px;
+    height: auto;
+  }
+
+  .home-image {
+    position: absolute;
+    top: 354px;
+    left: 400px;
+    width: 380px;
+    height: 380px;
+  }
+
+  .content-container {
+    position: absolute;
+    top: 376px;
+    left: 65%;
+    transform: translateX(-50%);
+    width: 560px;
+    color: #384725;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .text-box {
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .button {
+    display: block;
+    margin: 10px 0;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    text-decoration: none;
+    width: 316px; 
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .button-login {
+    background-color: #C9CFC1;
+    color: #384725;
+  }
+
+  .button-login:hover {
+    background-color: #828978;
+    transform: scale(1.05);
+  }
+
+  .button-register {
+    background-color: #537627;
+    color: #F2FFE2;
+  }
+
+  .button-register:hover {
+    background-color: #8dae64;
+    transform: scale(1.05);
+  }
+
+  .division-container {
+    display: flex;
+    justify-content: center; 
+    margin-top: 900px;
+  }
+
+  .button-division {
+    background-color: #537627;
+    color: #F2FFE2;
+    margin: 0 10px; 
+  }
+
+  .button-division:hover {
+    background-color: #8dae64;
+    transform: scale(1.05);
+  }
+
+  .buttonStuff {
+    display: block;
+    margin: 10px 50px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .section {
+    position: absolute;
+    top: 1200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding: 20px;
+  }
+  
+  .left-content {
+    width: calc(50% - 20px); /* Half width minus padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    }
+
+    .left-content h2 {
+    color: #436C10; 
+    font-size: 24px; 
+    margin-bottom: 10px; 
+    }
+
+    .left-content p {
+    color: #384725; 
+    font-size: 18px; 
+    text-align: center;
+    }
+  
+  .right-content {
+    width: calc(50% - 20px); 
+    text-align: center;
+  }
+  
+  .right-content img {
+    max-width: 60%;
+    max-height: 60%;
+  }
+
+  .second-section {
+  position: absolute;
+  top: 1700px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1200px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 20px;
+}
+
+.second-section .left-content {
+  width: calc(50% - 20px);
+  text-align: center;
+}
+
+.second-section .left-content img {
+    max-width: 60%;
+    max-height: 60%;
+}
+
+.second-section .right-content {
+  width: calc(50% - 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.second-section .right-content h2 {
+  color: #436C10;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.second-section .right-content p {
+  color: #384725;
+  font-size: 18px;
+  text-align: center;
+}
+
+
+
+
+.third-section {
+    position: absolute;
+    top: 2200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding: 20px;
+  }
+  
+  .third-section .left-content {
+    width: calc(50% - 20px); /* Half width minus padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    }
+
+    .third-section .left-content h2 {
+    color: #436C10; 
+    font-size: 24px; 
+    margin-bottom: 10px; 
+    }
+
+    .third-section .left-content p {
+    color: #384725; 
+    font-size: 18px; 
+    text-align: center;
+    }
+  
+    .third-section .right-content {
+    width: calc(50% - 20px); 
+    text-align: center;
+  }
+  
+  .third-section .right-content img {
+    max-width: 60%;
+    max-height: 60%;
+  }
+
+  .fourth-section {
+  position: absolute;
+  top: 2700px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1200px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 20px;
+}
+
+.fourth-section .left-content {
+  width: calc(50% - 20px);
+  text-align: center;
+}
+
+.fourth-section .left-content img {
+  max-width: 60%;
+  max-height: 60%;
+}
+
+.fourth-section .right-content {
+  width: calc(50% - 20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.fourth-section .right-content h2 {
+  color: #436C10;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.fourth-section .right-content p {
+  color: #384725;
+  font-size: 18px;
+  text-align: center;
+}
+
+.fifth-section {
+    position: absolute;
+    top: 3800px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding: 20px;
+  }
+  
+  .fifth-section .left-content {
+    width: calc(50% - 20px); /* Half width minus padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    }
+
+    .fifth-section .left-content h2 {
+    color: #436C10; 
+    font-size: 24px; 
+    margin-bottom: 10px; 
+    }
+
+    .fifth-section .left-content p {
+    color: #384725; 
+    font-size: 18px; 
+    text-align: center;
+    }
+  
+    .fifth-section .right-content {
+    width: calc(50% - 20px); 
+    text-align: center;
+  }
+  
+  .fifth-section .right-content img {
+    max-width: 60%;
+    max-height: 60%;
+  }
+
+  .button-creative {
+    background-color: #96C25E;
+    color: #436C10;
+    border-radius: 20px;
+    font-size: 18px;
+    text-align: center;
+    width: 200px;
+  }
+
+  .button-creative:hover {
+    background-color: #b0ce8a;
+    transform: scale(1.05);
+  }
+
+
+</style>
+<title>Revivo</title>
+</head>
+<body>
+  <img src="Revivo__1_-removebg-preview.png" alt="Logo" class="logo">
+  <div class="home-image">
+    <img src="green-earth.png" alt="Content Image" style="width: 100%; height: 100%;">
+  </div>
+
+  <div class="content-container">
+    <div class="text-box">
+      Companies, <strong>ASSEMBLE!</strong> Let's make the world a more <strong>sustainable</strong> place!
+    </div>
+    <div class="button-container">
+      <a href="register.html" class="button button-register">Get started</a>
+      <a href="login.html" class="button button-login">I already have an account</a>
+    </div>
+  </div>
+
+  <div class="division-container">
+    <a class="buttonStuff button-division">About Revivo</a>
+    <a class="buttonStuff button-division">Science Behind Revivo</a>
+    <a class="buttonStuff button-division">Revivo Creative Mode</a>
+    <a class="buttonStuff button-division">Revivo Consulting</a>
+  </div>
+  
+  <div class="section">
+    <div class="left-content">
+      <h2>Circular Economy</h2>
+      <p>A circular economy is a sustainable approach where manufacturers design products for longevity and recycling, <strong>minimizing waste</strong> and resource depletion, creating a closed-loop system for a more sustainable future.</p>
+    </div>
+    <div class="right-content">
+      <img src="HomeImage.png" alt="Image">
+    </div>
+  </div>
+
+  <div class="second-section">
+    <div class="left-content">
+      <img src="HomeImage1.png" alt="Image">
+    </div>
+    <div class="right-content">
+      <h2>Sustainability</h2>
+      <p>The circular economy, by promoting resource reuse, reducing waste, and minimizing emissions, offers a <strong>sustainable path</strong> that lessens resource strain and helps mitigate climate change impacts.</p>
+    </div>
+  </div>
+
+  <div class="third-section">
+    <div class="left-content">
+      <h2>Backed by Science</h2>
+      <p>Circular economies, grounded in research, cut carbon emissions by up to 48% (Ellen MacArthur Foundation). They're a science-backed solution for sustainable resource management, waste reduction, and environmental preservation.</p>
+    </div>
+    <div class="right-content">
+      <img src="HomeImage2.png" alt="Image">
+    </div>
+  </div>
+
+  <div class="fourth-section">
+    <div class="left-content">
+      <img src="HomeImage3.png" alt="Image">
+    </div>
+    <div class="right-content">
+      <h2>Impact</h2>
+      <p>Revivo, an emerging circular economy venture, fosters sustainability in manufacturing. Through material sharing between businesses, it curbs waste, amplifies resource efficiency, and advances a greener industrial landscape.</p>
+    </div>
+  </div>
+
+  <div class="new-section" style="position: absolute; top: 3200px; left: 50%; transform: translateX(-50%); width: calc(100% - 100px); height: 500px; background-color: #EAF9D7; display: flex; align-items: center; justify-content: center;">
+    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <p style="font-size: 40px; color: black;">
+        Join <span style="color: #96C25E;">Re</span><span style="color: #699433;">vivo</span> to cut down carbon emissions by 50% by 2030
+      </p>
+    </div>
+  </div>
+  
+
+  <div class="fifth-section">
+    <div class="left-content">
+      <h2>Creative Mode</h2>
+      <p>Revivo, an innovative platform, exclusively enables eco-friendly design. Users <strong>access sustainable materials</strong>, curbing environmental impact. By assessing size, materials, and type, it quantifies carbon footprint, enhancing <strong>product lifecycle</strong> sustainability.</p>
+      <a href="creative.html" class="button button-creative" >Explore Creative Mode</a>
+    </div>
+    <div class="right-content">
+      <img src="HomeImage4.png" alt="Image">
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const aboutButton = document.querySelector(".button-division:nth-child(1)");
+      const scienceButton = document.querySelector(".button-division:nth-child(2)");
+      const creativeButton = document.querySelector(".button-division:nth-child(3)");
+  
+      aboutButton.addEventListener("click", () => {
+        scrollToSection(1090);
+      });
+  
+      scienceButton.addEventListener("click", () => {
+        scrollToSection(2000);
+      });
+  
+      creativeButton.addEventListener("click", () => {
+        scrollToSection(4000);
+      });
+  
+      function scrollToSection(position) {
+        window.scrollTo({
+          top: position,
+          behavior: "smooth",
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
