@@ -97,15 +97,6 @@ textarea:focus {
     outline: none;
 }
 
-#ruler {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 20px;
-    width: 100%;
-    background: repeating-linear-gradient(to right, #333, #333 1px, #FFF 1px, #FFF 10px);
-}
-
 #buttonContainer {
     display: flex;
     flex-direction: column;
@@ -152,8 +143,134 @@ textarea:focus {
     cursor: pointer;
 }
 
+.shapePropertiesBox, .textPropertiesBox {
+    position: absolute; 
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #3f3f3f;
+    padding: 10px;
+    top: 100px; 
+    right: 100px; 
+    background-color: #3f3f3f;
+    border-radius: 5px;
+    color: white;
+    z-index: 3;
+    max-width: 300px;
+}
 
+#impactScore {
+    margin-top: 50px;
+    color: #3f3f3f;
+}
 
+#colorPicker, #textColor {
+    width: 50px;
+    height: 30px;
+    background-color: #555555;
+    border-radius: 10px;
+}
+
+#shapeWidth, #shapeHeight, #shapeDepth, #fontSize {
+    width: 90px;
+    height: 20px;
+    background-color: #555555;
+    border-radius: 10px;
+}
+
+#shapeMaterial {
+    width: 200px;
+    height: 26px;
+    background-color: #555555;
+    border-radius: 10px;
+}
+
+#fontType {
+    width: 150px;
+    height: 26px;
+    background-color: #555555;
+    border-radius: 10px;
+}
+
+.width-height-container {
+    display: flex;
+}
+
+#shapeWidth, #shapeHeight {
+    margin-right: 5px;
+}
+
+.property {
+    display: flex;
+    flex-direction: column; 
+    margin-bottom: 10px;
+}
+
+#shapeProperties label {
+    font-size: 12px; 
+    margin-bottom: 5px;
+}
+
+#shapeProperties input[type="number"],
+#shapeProperties input[type="color"],
+#shapeProperties select {
+    color: white;
+}
+
+.text-style-btn {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.text-style-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.text-style-btn.active {
+    background-color: #ddd;
+}
+
+.text-property {
+    display: flex;
+    flex-direction: row; 
+    margin-bottom: 10px;
+}
+
+#textProperties label {
+    font-size: 12px; 
+    margin-bottom: 5px;
+}
+
+#canvasScale {
+    width: 50px;
+    height: 20px;
+    border-radius: 5px;
+    background-color: #b8b8b8;
+}
+
+#environmentalImpact {
+    height: 100px;
+    width: 450px;
+    text-align: center;
+    border-radius: 7px;
+    background-color: #D9D9D9;
+    justify-content: center; 
+    align-items: center;    
+    flex-direction: column;
+    position: absolute;
+    bottom: 95px;
+    right: 35px;
+    display: none;
+}
+
+#score-text {
+    color: #3f3f3f;
+    font-size: 12px;
+    margin-top: 0px;;
+}
 </style>
 <head>
     <meta charset="UTF-8">
@@ -164,13 +281,14 @@ textarea:focus {
 <body>
     <div id="sidebar">
         <div id="buttonContainer">
-            <button onclick="createShape('rect')"><img src="square.png" alt="Rectangle"></button>
-            <button onclick="createShape('circle')"><img src="circle.png" alt="Circle"></button>
-            <button onclick="createShape('line')"><img src="diagonal-line.png" alt="Line"></button>
-            <button onclick="createTextField()"><img src="text (1).png" alt="Text Field"></button>
-            <button onclick="deleteShape()"><img src="delete (4).png" alt="Delete"></button>
-                <label for="canvasScale">Canvas Scale:</label>
-                <select id="canvasScale">
+            <button onclick="createShape('rect')"><img src="assets/square.png" alt="Rectangle"></button>
+            <button onclick="createShape('circle')"><img src="assets/circle.png" alt="Circle"></button>
+            <button onclick="createShape('line')"><img src="assets/diagonal-line.png" alt="Line"></button>
+            <button onclick="createTextField()"><img src="assets/text.png" alt="Text Field"></button>
+            <button onclick="deleteShape()"><img src="assets/delete.png" alt="Delete"></button>
+            <button onclick="showScale()"><img src="assets/ruler.png" alt="Ruler"></button>
+                <label for="canvasScale" class="hidden">Canvas Scale:</label>
+                <select id="canvasScale" class="hidden">
                     <option value="inches">Inches</option>
                     <option value="cm">Centimeters</option>
                     <option value="feet">Feet</option>
@@ -179,65 +297,125 @@ textarea:focus {
     </div>
     <div id="canvas">
         <div id="ruler"></div>
-        <button id="calculateImpact"><img src="CornerImage.png" alt="Rectangle"></button>
-    <p id="impactScore">Environmental Impact: N/A</p>
-    <p id="errorNotification" style="color: red;"></p>
+        <button id="calculateImpact"><img src="assets/CornerImage.png" alt="Calculate Environmental Impact"></button>
+    <div id="environmentalImpact">
+        <p id="impactScore">Environmental Impact Score: N/A</p>
+        <p id="score-text">Lower score = lower impact, higher score = greater impact</p>
+        <p id="errorNotification" style="color: red;"></p>
     </div>
+    </div>
+    <div class="shapePropertiesBox">
         <div id="shapeProperties" class="hidden">
             <h3>Shape Properties</h3>
             <div class="property">
-                <label for="colorPicker">Color:</label>
+                <label for="colorPicker">Color</label>
                 <input type="color" id="colorPicker">
             </div>
-            <div class="property">
-                <label for="shapeWidth">Width:</label>
-                <input type="number" id="shapeWidth" min="1" step="1" placeholder="Width in px">
+            <div class="width-height-container">
+                <div class="property">
+                    <label for="shapeWidth">Width</label>
+                    <input type="number" id="shapeWidth" min="1" step="1" placeholder="Width in px">
+                </div>
+                <div class="property">
+                    <label for="shapeHeight">Height</label>
+                    <input type="number" id="shapeHeight" min="1" step="1" placeholder="Height in px">
+                </div>
             </div>
             <div class="property">
-                <label for="shapeHeight">Height:</label>
-                <input type="number" id="shapeHeight" min="1" step="1" placeholder="Height in px">
-            </div>
-            <div class="property">
-                <label for="shapeDepth">Depth (in default unit):</label>
+                <label for="shapeDepth">Depth (in default unit)</label>
                 <input type="number" id="shapeDepth" min="1" step="1" placeholder="Depth">
             </div>
             <div class="property">
-                <label for="shapeMaterial">Material:</label>
+                <label for="shapeMaterial">Material</label>
                 <select id="shapeMaterial">
                     <option value="" selected disabled>--Select One--</option>
-                    <option value="wood">Wood</option>
-                    <option value="metal">Metal</option>
-                    <option value="plastic">Plastic</option>
-                    <option value="paper">Paper</option>
+                    
+                    <optgroup label="Metals and Alloys">
+                        <option value="aluminum">Aluminum</option>
+                        <option value="steel">Steel</option>
+                        <option value="stainless-steel">Stainless Steel</option>
+                        <option value="copper">Copper</option>
+                        <option value="lead">Lead</option>
+                        <option value="brass">Brass</option>
+                        <option value="bronze">Bronze</option>
+                        <option value="cast-iron">Cast Iron</option>
+                    </optgroup>
+                
+                    <optgroup label="Woods">
+                        <option value="bamboo">Bamboo</option>
+                        <option value="fsc-hardwoods">FSC-Certified Hardwoods</option>
+                        <option value="tropical-hardwoods">Tropical Hardwoods (Non-Certified)</option>
+                    </optgroup>
+                
+                    <optgroup label="Plastics and Polymers">
+                        <option value="pet">Polyethylene Terephthalate (PET)</option>
+                        <option value="hdpe">High-Density Polyethylene (HDPE)</option>
+                        <option value="pp">Polypropylene (PP)</option>
+                        <option value="ps">Polystyrene (PS)</option>
+                        <option value="pvc">Polyvinyl Chloride (PVC)</option>
+                        <option value="nylon">Nylon</option>
+                        <option value="silicone">Silicone</option>
+                    </optgroup>
+                
+                    <optgroup label="Paper Types">
+                        <option value="bond-paper">Bond Paper</option>
+                        <option value="coated-paper">Coated Paper</option>
+                        <option value="uncoated-paper">Uncoated Paper</option>
+                        <option value="textured-paper">Textured Paper</option>
+                        <option value="newsprint">Newsprint</option>
+                        <option value="kraft-paper">Kraft Paper</option>
+                        <option value="vellum-paper">Vellum Paper</option>
+                    </optgroup>
+                
+                    <optgroup label="Cardboard Types">
+                        <option value="corrugated-cardboard">Corrugated Cardboard</option>
+                        <option value="solid-white-board">Solid White Board</option>
+                        <option value="grey-board">Grey Board</option>
+                        <option value="duplex-board">Duplex Board</option>
+                        <option value="chipboard">Chipboard</option>
+                    </optgroup>
+                
+                    <optgroup label="Other Materials">
+                        <option value="glass">Glass</option>
+                        <option value="rubber">Rubber</option>
+                        <option value="carbon-fiber">Carbon Fiber</option>
+                        <option value="ceramic">Ceramic</option>
+                    </optgroup>
+                </select>                
+            </div>
+        </div>
+    </div>
+    <div class="textPropertiesBox">
+        <div id="textProperties" class="hidden">
+            <h4>Text Properties</h4>
+            
+            <div class="text-property">
+                <button id="textBold" class="text-style-btn">B</button>
+                <button id="textItalic" class="text-style-btn">I</button>
+                <button id="textUnderline" class="text-style-btn">U</button>
+            </div>
+    
+            <div class="property">
+                <label for="textColor">Text Color</label>
+                <input type="color" id="textColor">
+            </div>
+    
+            <div class="property">
+                <label for="fontSize">Font Size</label>
+                <input type="number" id="fontSize" min="1" step="1" placeholder="Size in px">
+            </div>
+    
+            <div class="property">
+                <label for="fontType">Font Type</label>
+                <select id="fontType">
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Georgia">Georgia</option>
                 </select>
             </div>
         </div>
-
-    <div id="textProperties" class="hidden">
-        <h4>Text Properties</h4>
-        <label for="textBold">Bold:</label>
-        <input type="checkbox" id="textBold">
-
-        <label for="textItalic">Italic:</label>
-        <input type="checkbox" id="textItalic">
-
-        <label for="textUnderline">Underline:</label>
-        <input type="checkbox" id="textUnderline">
-
-        <label for="textColor">Text Color:</label>
-        <input type="color" id="textColor">
-
-        <label for="fontSize">Font Size:</label>
-        <input type="number" id="fontSize" min="1" step="1" placeholder="Size in px">
-
-        <label for="fontType">Font Type:</label>
-        <select id="fontType">
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Georgia">Georgia</option>
-        </select>
-    </div>
+    </div>    
 </body>
 
 <script>
@@ -267,6 +445,30 @@ textarea:focus {
 <script>
     let selectedShape = null;
 
+    function updateTextProperties(textField) {
+        const textColorControl = document.getElementById('textColor');
+        const fontSizeControl = document.getElementById('fontSize');
+        const fontTypeControl = document.getElementById('fontType');
+
+        textColorControl.value = textField.getAttribute('data-text-color') || textField.style.color;
+        fontSizeControl.value = textField.getAttribute('data-font-size') || textField.style.fontSize.replace('px', '');
+        fontTypeControl.value = textField.getAttribute('data-font-type') || textField.style.fontFamily;
+    }
+
+    function updateShapeProperties(shape) {
+        const widthControl = document.getElementById('shapeWidth');
+        const heightControl = document.getElementById('shapeHeight');
+        const colorControl = document.getElementById('colorPicker');
+        const depthControl = document.getElementById('shapeDepth');
+        const materialControl = document.getElementById('shapeMaterial');
+
+        widthControl.value = shape.getAttribute('data-width') || shape.style.width.replace('px', '');
+        heightControl.value = shape.getAttribute('data-height') || shape.style.height.replace('px', '');
+        colorControl.value = shape.getAttribute('data-color') || shape.style.backgroundColor;
+        depthControl.value = shape.getAttribute('data-depth') || '';
+        materialControl.value = shape.getAttribute('data-material') || '';
+    }
+
     function createTextField() {
         const textField = document.createElement('textarea');
         textField.setAttribute('placeholder', 'Insert your text here');
@@ -277,6 +479,7 @@ textarea:focus {
         textField.style.height = '30px';
         textField.style.resize = 'none'; 
         textField.style.backgroundColor = 'transparent';
+        textField.style.color = 'white';
 
         textField.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -287,11 +490,12 @@ textarea:focus {
             selectedShape = textField;
             textField.classList.add('selected');
             document.getElementById('textProperties').classList.remove('hidden');
+
+            updateTextProperties(textField);
         });
 
         document.getElementById('canvas').appendChild(textField);
 
-        // Make the text field draggable
         interact(textField)
             .draggable({
                 listeners: {
@@ -383,6 +587,8 @@ textarea:focus {
             document.getElementById('shapeProperties').classList.remove('hidden');
             document.getElementById('shapeWidth').value = parseInt(window.getComputedStyle(shape).width, 10);
             document.getElementById('shapeHeight').value = parseInt(window.getComputedStyle(shape).height, 10);
+
+            updateShapeProperties(shape);
         });
 
         document.getElementById('canvas').appendChild(shape);
@@ -425,7 +631,6 @@ textarea:focus {
             });
         }
 
-        // Add drag and resize functionality
         interact(shape)
             .draggable({
                 listeners: {
@@ -506,14 +711,14 @@ textarea:focus {
 
     });
 
-    // sidebar controls
     const colorPicker = document.getElementById('colorPicker');
     colorPicker.addEventListener('input', function(e) {
-        console.log("Event triggered"); // Check if the event is triggered
+        console.log("Event triggered"); 
         console.log("Selected color:", e.target.value);
         if (selectedShape) {
             console.log("Applying color to shape:", selectedShape);
             selectedShape.style.backgroundColor = e.target.value;
+            selectedShape.setAttribute('data-color', e.target.value);
         } else {
             console.log("No shape selected");
         }
@@ -522,75 +727,132 @@ textarea:focus {
     document.getElementById('shapeWidth').addEventListener('input', function(e) {
         if (selectedShape) {
             selectedShape.style.width = e.target.value + 'px';
+            selectedShape.setAttribute('data-width', e.target.value);
         }
     });
 
     document.getElementById('shapeHeight').addEventListener('input', function(e) {
         if (selectedShape) {
             selectedShape.style.height = e.target.value + 'px';
+            selectedShape.setAttribute('data-height', e.target.value);
         }
     });
 
-    document.getElementById('textBold').addEventListener('change', function(e) {
+    document.getElementById('textBold').addEventListener('click', function(e) {
+        this.classList.toggle('active'); 
         if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
-            selectedShape.style.fontWeight = e.target.checked ? 'bold' : 'normal';
+            selectedShape.style.fontWeight = this.classList.contains('active') ? 'bold' : 'normal';
         }
     });
 
-    document.getElementById('textItalic').addEventListener('change', function(e) {
+    document.getElementById('textItalic').addEventListener('click', function(e) {
+        this.classList.toggle('active'); 
         if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
-            selectedShape.style.fontStyle = e.target.checked ? 'italic' : 'normal';
+            selectedShape.style.fontStyle = this.classList.contains('active') ? 'italic' : 'normal';
         }
     });
 
-    document.getElementById('textUnderline').addEventListener('change', function(e) {
+    document.getElementById('textUnderline').addEventListener('click', function(e) {
+        this.classList.toggle('active'); 
         if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
-            selectedShape.style.textDecoration = e.target.checked ? 'underline' : 'none';
+            selectedShape.style.textDecoration = this.classList.contains('active') ? 'underline' : 'none';
         }
     });
 
     document.getElementById('textColor').addEventListener('input', function(e) {
         if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
             selectedShape.style.color = e.target.value;
+            selectedShape.setAttribute('data-text-color', e.target.value);
         }
     });
 
     document.getElementById('fontSize').addEventListener('input', function(e) {
         if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
             selectedShape.style.fontSize = e.target.value + 'px';
+            selectedShape.setAttribute('data-font-size', e.target.value);
         }
     });
 
     document.getElementById('fontType').addEventListener('change', function(e) {
         if (selectedShape && selectedShape.tagName === 'TEXTAREA') {
             selectedShape.style.fontFamily = e.target.value;
+            selectedShape.setAttribute('data-font-type', e.target.value);
         }
     });
 
-    document.getElementById('shapeMaterial').addEventListener('change', function(e) {
-        if (selectedShape) {
-            switch (e.target.value) {
-                case 'wood':
-                    selectedShape.style.backgroundImage = 'url(wood-texture.png)';
-                    selectedShape.setAttribute('data-material', 'wood');
-                    break;
-                case 'metal':
-                    selectedShape.setAttribute('data-material', 'metal');
-                    break;
-                case 'plastic':
-                    selectedShape.setAttribute('data-material', 'plastic');
-                    break;
-                case 'paper':
-                    selectedShape.style.backgroundImage = 'url(paper-texture.png)';
-                    selectedShape.setAttribute('data-material', 'paper');
-                    break;
-                default:
-                    selectedShape.style.backgroundImage = '';
-                    selectedShape.removeAttribute('data-material');
-                    break;
-            }
+    function calculateShapeImpact(shape) {
+        const width = parseFloat(window.getComputedStyle(shape).width);
+        const height = parseFloat(window.getComputedStyle(shape).height);
+        const depth = shape.getAttribute('data-depth');
+        const material = shape.getAttribute('data-material');
+
+        if (!depth || !material) {
+            return null; 
         }
-    });
+
+        let impactScore = 0;
+        const volume = width * height * parseFloat(depth);
+
+        switch (material) {
+            case 'bamboo':
+                impactScore = volume * 0.2;
+                break;
+            case 'fsc-hardwoods':
+                impactScore = volume * 0.4;
+                break;
+            case 'tropical-hardwoods':
+                impactScore = volume * 0.7;
+                break;
+            case 'aluminum':
+                impactScore = volume * 1.5;
+                break;
+            case 'steel':
+                impactScore = volume * 2;
+                break;
+            case 'copper':
+                impactScore = volume * 2.5;
+                break;
+            case 'lead':
+                impactScore = volume * 3;
+                break;
+            case 'pet':
+                impactScore = volume * 2.2;
+                break;
+            case 'hdpe':
+                impactScore = volume * 2.3;
+                break;
+            case 'pp':
+                impactScore = volume * 2.4;
+                break;
+            case 'ps':
+                impactScore = volume * 2.5;
+                break;
+            case 'pvc':
+                impactScore = volume * 3.5;
+                break;
+            case 'bond-paper':
+            case 'coated-paper':
+            case 'uncoated-paper':
+            case 'textured-paper':
+            case 'newsprint':
+            case 'kraft-paper':
+            case 'vellum-paper':
+                impactScore = volume * 0.3;
+                break;
+            case 'corrugated-cardboard':
+            case 'solid-white-board':
+            case 'grey-board':
+            case 'duplex-board':
+            case 'chipboard':
+                impactScore = volume * 0.4;
+                break;
+            default:
+                impactScore = volume * 1; 
+                break;
+        }
+
+        return impactScore;
+    }
 
     document.getElementById('shapeDepth').addEventListener('input', function(e) {
         if (selectedShape) {
@@ -605,46 +867,21 @@ textarea:focus {
                 ruler.style.backgroundSize = '10px 100%';
                 break;
             case 'cm':
-                ruler.style.backgroundSize = '37.7953px 100%';  // 1 inch = 2.54 cm, so 10px * 2.54 = 25.4px represents 1cm
+                ruler.style.backgroundSize = '37.7953px 100%';  
                 break;
             case 'feet':
-                ruler.style.backgroundSize = '120px 100%';  // Assuming 10px represents 1 inch, 120px will represent 1 foot
+                ruler.style.backgroundSize = '120px 100%';  
                 break;
         }
     });
 
-    function calculateShapeImpact(shape) {
-        const width = parseFloat(window.getComputedStyle(shape).width);
-        const height = parseFloat(window.getComputedStyle(shape).height);
-        const depth = shape.getAttribute('data-depth');
-        const material = shape.getAttribute('data-material');
-
-        if (!depth || !material) {
-            return null;  // Indicates missing data
-        }
-
-        let impactScore = 0;
-        const volume = width * height * parseFloat(depth);
-
-        switch (material) {
-            case 'wood':
-                impactScore = volume * 0.5;  
-                break;
-            case 'metal':
-                impactScore = volume * 1.5;  
-                break;
-            case 'plastic':
-                impactScore = volume * 2;    
-                break;
-            case 'paper':
-                impactScore = volume * 0.3;
-                break;
-        }
-
-        return impactScore;
-    }
-
     document.getElementById('calculateImpact').addEventListener('click', function() {
+        var envImpact = document.getElementById('environmentalImpact');
+        if(envImpact.style.display === 'none' || envImpact.style.display === '') {
+            envImpact.style.display = 'flex'
+        } else {
+            envImpact.style.display = 'none'
+        }
         const shapes = document.querySelectorAll('.shape');
         let totalImpact = 0;
         let missingData = false;
@@ -664,6 +901,21 @@ textarea:focus {
         } else {
             document.getElementById('errorNotification').innerText = "";
             document.getElementById('impactScore').innerText = `Environmental Impact: ${totalImpact}`;
+        }
+    });
+
+    function showScale() {
+        var canvasScale = document.getElementById('canvasScale');
+        if (canvasScale.style.display === 'block') {
+            canvasScale.style.display = 'none';
+        } else {
+            canvasScale.style.display = 'block';
+        }
+    }
+
+    document.getElementById('shapeMaterial').addEventListener('change', function(e) {
+        if (selectedShape) {
+            selectedShape.setAttribute('data-material', e.target.value);
         }
     });
 </script>
