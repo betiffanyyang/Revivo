@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molecular Visualization</title>
+    <script src="https://unpkg.com/ngl@2.0.0-dev.40/dist/ngl.js"></script>
+</head>
+<body>
+
+<div id="viewport" style="width:500px; height:500px;"></div>
+
+<label for="material">Material (input as a SMILES string):</label>
+<input type="text" id="materialInput" name="material">
+
+<button onclick="processInputs()">Submit</button>
+
+<script>
+    let product = '';
+    let smiles = '';
+    var stage = new NGL.Stage("viewport");
+
+    function processInputs() {
+        const material = document.getElementById("materialInput").value;
+
+        smiles = getGptResponse(material);
+
+        fetch('http://127.0.0.1:5000/generate-3d-structure', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ smiles: smiles })
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+
+        stage.loadFile("molecule.pdb").then(function(component) {
+            component.addRepresentation("ball+stick");
+            stage.autoView();
+        });
+    }
+
+    async function getGptResponse(material) {
+        const user_message = [
+            { "role": "user", "content": `Give me nothing but the chemical SMILES string of a material that is similar in structure and properties as the material ${material}. Remember, give me ONLY the SMILES string.` },
+        ];
+        console.log(user_message);
+
+        const headers = {
+            'Authorization': `Bearer API-KEY`,
+            'Content-Type': 'application/json',
+        };
+
+        const api_endpoint = 'https://api.openai.com/v1/chat/completions';
+
+        const response_openai = await fetch(api_endpoint, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ messages: user_message, model: "gpt-3.5-turbo" }),
+        });
+        const openai_json = await response_openai.json();
+        const smiles = openai_json.choices[0].message.content;
+        console.log(smiles);
+
+        return smiles
+    }
+</script>
+
+</body>
+</html>
